@@ -7,8 +7,8 @@ namespace WebApplication1.DAL
     {
         public Contexto(DbContextOptions<Contexto> options): base(options) { }
 
-        DbSet<Vehiculos> Vehiculos { get; set;}
-        DbSet<VehiculosDetalle> VehiculosDetalle { get; set;}
-        DbSet<Accesorios> Accesorios { get; set;}
+        public DbSet<Vehiculos> Vehiculos { get; set;}
+        public DbSet<VehiculosDetalle> VehiculosDetalle { get; set;}
+        public DbSet<Accesorios> Accesorios { get; set;}
     }
 }
