@@ -1,0 +1,93 @@
+﻿<h3>Index</h3>
+@page "/AccesoriosIndex"
+@inject HttpClient httpClient
+
+<a href="Create">Create</a>
+<a href="Edit">Edit</a>
+<a href="View">View</a>
+<a href="Delete">Delete</a>
+
+<div class="card shadow">
+    <div class="card-header">
+        <h3>Accesorios</h3>
+    </div>
+
+    <div class="card-body">
+        <form>
+            <div class="input-group aling-items-end">
+                <InputSelect class="form-select col-2" @bind-Value="op">
+                    <option value="1">Accesorios Id</option>
+                </InputSelect>
+
+                <div class="flex-fill mx-2">
+                    <div class="input-group">
+                        <label class="input-group-text">B&uacute;squeda</label>
+
+                        <div class="col-auto">
+                            @switch (op)
+                            {
+                                case 1:
+                                    <div class="input-group">
+                                        <InputNumber @bind-Value="accesorios.AccesorioId" class="form-control"></InputNumber>
+                                        <button type="button" class="btn btn-primary bi bi-search" @onclick="Buscar"></button>
+                                    </div>
+                                    break;
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <a href="/AccesoriosCreate" class="btn btn-success mx-2 bi bi-plus-square"> Crear</a>
+
+            </div>
+        </form>
+    </div>
+
+    <div>
+        <table class="table table-light table-hover table-striped table-bordered ">
+            <thead>
+                <tr>
+                    <th scope="col" class="text-center">Id</th>
+                    <th scope="col" class="text-center">Descripci&oacute;n</th>
+                    <th scope="col" class="text-center">Editar</th>
+                    <th scope="col" class="text-center">Detalles</th>
+                    <th scope="col" class="text-center">Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ListaAccesorios)
+                {
+                    <tr>
+                        <td class="text-center">@item.AccesorioId</td>
+                        <td class="text-center">@item.Descripcion</td>
+                        <td class="text-center"><a href="Edit/@item.AccesorioId" class="btn btn-outline-danger bi bi-pencil-square"></a></td>
+                        <td class="text-center"><a href="View/@item.AccesorioId" class="btn btn-outline-info bi bi-card-text"></a></td>
+                        <td class="text-center"><a href="Delete/@item.AccesorioId" class="btn btn-outline-danger bi bi-person-x"></a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="card-footer fw-bold">
+            <p>Cantidad de Tickets: @ListaAccesorios.Count</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    public List<Accesorios> ListaAccesorios = new List<Accesorios>();
+    public Accesorios accesorios = new Accesorios();
+    public int op { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaAccesorios = (await httpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios"))!;
+    }
+    public async Task Buscar()
+    {
+        if (op == 1 && accesorios.AccesorioId > 0)
+            ListaAccesorios = (await httpClient.GetFromJsonAsync<List<Accesorios>>($"api/Accesorios/"))!.Where(t => t.AccesorioId == accesorios.AccesorioId).ToList();
+        else
+            ListaAccesorios = (await httpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios"))!;
+    }
+}
