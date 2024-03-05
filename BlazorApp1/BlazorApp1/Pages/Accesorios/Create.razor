@@ -1,0 +1,53 @@
+﻿<h3>Create</h3>
+@page "/AccesoriosCreate"
+@inject HttpClient httpClient
+
+<a href="Index">Index</a>
+
+<EditForm Model="accesorios" on OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="card-header">
+        <h3>Accesorios</h3>
+    </div>
+    <div class="card-body">
+        <div>
+            <label>Accesorio Id:</label>
+            <InputNumber @bind-Value="accesorios.AccesorioId" class="form-control"></InputNumber>
+            <ValidationMessage For="(() => accesorios.AccesorioId)"></ValidationMessage>
+        </div>
+        <div>
+            <label>Descripcion:</label>
+            <InputText @bind-Value="accesorios.Descripcion" class="form-control"></InputText>
+            <ValidationMessage For="(() => accesorios.Descripcion)"></ValidationMessage>
+        </div>
+    </div>
+    <div class="card-footer">
+        <div class="input-group">
+            <a href="/AccesoriosIndex" class="btn btn-outline-danger bi bi-house-door-fill">Volver</a>
+            <button type="button" class="btn btn-outline-primary bi bi-file-earmark-diff-fill" @onclick="Nuevo">Nuevo</button>
+            <button type="submit" class="btn btn-outline-success bi bi-floppy-fill">Guardar</button>
+        </div>
+    </div>
+
+</EditForm>
+
+@code {
+    public Accesorios accesorios = new Accesorios();
+
+    public async Task Guardar()
+    {
+        var guardo = await httpClient.PostAsJsonAsync("api/Accesorios", accesorios);
+
+        if (guardo.IsSuccessStatusCode)
+        {
+            var ticketCreado = await guardo.Content.ReadFromJsonAsync<Accesorios>();
+            accesorios = new Accesorios();
+        }
+    }
+
+    public void Nuevo()
+    {
+        accesorios = new Accesorios();
+    }
+}
