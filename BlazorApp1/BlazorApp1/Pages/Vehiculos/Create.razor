@@ -1,0 +1,93 @@
+﻿<h3>Create</h3>
+@inject HttpClient httpClient
+@page "/VehiculoCreate"
+
+<EditForm Model="vehiculo" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="card shadow">
+        <div class="card-header">
+            <h3>Registro de Vehiculos</h3>
+        </div>
+        <div class="card-body">
+
+            <div class="col-4">
+                <label class="form-label"> Vehiculo Id:</label>
+                <InputNumber @bind-Value="vehiculo.VehiculoId" class="form-control"></InputNumber>
+                <ValidationMessage For="@(() => vehiculo.VehiculoId)" />
+            </div>
+
+            <div class="col-4">
+                <label class="form-label"> Fecha</label>
+                <InputDate @bind-Value="vehiculo.Fecha" class="form-control"></InputDate>
+                <ValidationMessage For="@(() => vehiculo.Fecha)" />
+            </div>
+
+            <div class="col-6">
+                <label class="form-label"> Descripci&oacute;n:</label>
+                <InputText @bind-Value="vehiculo.Descripcion" class="form-control"></InputText>
+                <ValidationMessage For="@(() => vehiculo.Descripcion)" />
+            </div>
+
+            <div class="col-4">
+                <label class="form-label"> Costo:</label>
+                <InputNumber @bind-Value="vehiculo.Costo" class="form-control"></InputNumber>
+                <ValidationMessage For="@(() => vehiculo.Costo)" />
+            </div>
+
+            <div class="col-4">
+                <label class="form-label"> Gastos:</label>
+                <InputNumber @bind-Value="vehiculo.Gastos" class="form-control"></InputNumber>
+                <ValidationMessage For="@(() => vehiculo.Gastos)" />
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <div class="row">
+                <div class="input-group">
+                    <a href="/#" class="btn btn-outline-danger bi bi-house-door-fill">Volver</a>
+                    <button type="button" class="btn btn-outline-primary bi bi-file-earmark-diff-fill" @onclick="Nuevo">Nuevo</button>
+                    <button type="submit" class="btn btn-outline-success bi bi-floppy-fill">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+
+    public Vehiculos vehiculo = new Vehiculos();
+    public List<Accesorios> ListaAccesorios { get; set; } = new List<Accesorios>();
+    public List<VehiculosDetalle> ListaDetalles = new List<VehiculosDetalle>();
+    public VehiculosDetalle Detalle { get; set; } = new VehiculosDetalle();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaAccesorios = (await httpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios"))!;
+        vehiculo.Fecha = DateTime.Today;
+        Nuevo();
+    }
+
+    public async Task Guardar()
+    {
+        var guardadoTicket = await httpClient.PostAsJsonAsync("api/Vehiculos", vehiculo);
+
+        if (guardadoTicket.IsSuccessStatusCode)
+        {
+            var ticketCreado = await guardadoTicket.Content.ReadFromJsonAsync<Vehiculos>();
+
+            ListaDetalles = new List<VehiculosDetalle>();
+            vehiculo = new Vehiculos();
+        }
+    }
+
+    public void Nuevo()
+    {
+        vehiculo = new Vehiculos();
+        ListaDetalles = new List<VehiculosDetalle>();
+        vehiculo.Fecha = DateTime.Today;
+    }
+}
+
+
+

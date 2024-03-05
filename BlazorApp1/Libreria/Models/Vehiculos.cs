@@ -7,8 +7,8 @@ namespace Libreria.Models
     {
         [Key] 
         public int VehiculoId { get; set; }
-        [ForeignKey("VehiculosDetalle")]
-        public int DetalleId { get; set; }
+        [ForeignKey("Accesorios")]
+        public int AccesoriosId { get; set; }
         public DateTime Fecha { get; set; }
         [Required(ErrorMessage ="Este campo no puede estar vacio")]
         public string? Descripcion { get; set; }
