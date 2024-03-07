@@ -1,0 +1,159 @@
+﻿<h3>Create</h3>
+@inject HttpClient httpClient
+@page "/VehiculoEdit"
+@page "/VehiculoEdit/{VehiculoId:int}"
+
+<EditForm Model="vehiculo" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="card shadow">
+        <div class="card-header">
+            <h3>Registro de Vehiculos</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="row">
+                    <div class="col col-6">
+                        <label class="form-label"> Fecha</label>
+                        <InputDate @bind-Value="vehiculo.Fecha" class="form-control"></InputDate>
+                        <ValidationMessage For="@(() => vehiculo.Fecha)" />
+                    </div>
+                    <div class="col col-6">
+                        <label class="form-label"> Descripci&oacute;n:</label>
+                        <InputText @bind-Value="vehiculo.Descripcion" class="form-control"></InputText>
+                        <ValidationMessage For="@(() => vehiculo.Descripcion)" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col col-6">
+                        <label class="form-label"> Costo:</label>
+                        <InputNumber @bind-Value="vehiculo.Costo" class="form-control"></InputNumber>
+                        <ValidationMessage For="@(() => vehiculo.Costo)" />
+                    </div>
+
+                    <div class="col col-6">
+                        <label class="form-label desa"> Gastos:</label>
+                        <InputNumber @bind-Value="vehiculo.Gastos" class="form-control" disabled></InputNumber>
+                        <ValidationMessage For="@(() => vehiculo.Gastos)" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="card-header">
+                <h4>Detalles del vehiculo</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col col-4">
+                        <label> Accesorio:</label>
+                        <InputSelect @bind-Value="Detalle.AccesoriosId" class="form-select">
+                            @foreach (var item in ListaAccesorios)
+                            {
+                                <option value="@item.AccesorioId">@item.Descripcion</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col col-6">
+                        <label> Valor:</label>
+                        <InputNumber @bind-Value="Detalle.valor" class="form-control"></InputNumber>
+                    </div>
+                </div>
+
+                <table class="table table-bordered text-center mt-4">
+                    <thead>
+                        <tr>
+                            <th>Accesorio Id</th>
+                            <th>valor</th>
+                            <th>Descripci&oacute;n</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var detalle in ListaDetalles)
+                        {
+                            var accesorio = ListaAccesorios.FirstOrDefault(a => a.AccesorioId == detalle.AccesoriosId);
+                            <tr>
+                                <td>@detalle.AccesoriosId</td>
+                                <td>@detalle.valor</td>
+                                <td>@accesorio!.Descripcion</td>
+                                <td><button type="button" class="btn btn-outline-danger bi bi-trash-fill" @onclick=@(() => Remove(detalle))></button></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <button type="button" @onclick="add" class="btn btn-outline-primary bi bi-plus-square">Agregar</button>
+
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="row">
+                <div class="input-group">
+                    <a href="/VehiculoIndex" class="btn btn-outline-danger bi bi-house-door-fill">Volver</a>
+                    <button type="submit" class="btn btn-outline-success bi bi-floppy-fill">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int VehiculoId { get; set; }
+
+    public Vehiculos vehiculo = new Vehiculos();
+    public List<Accesorios> ListaAccesorios { get; set; } = new List<Accesorios>();
+
+    public List<VehiculosDetalle> ListaDetalles = new List<VehiculosDetalle>();
+    public VehiculosDetalle Detalle { get; set; } = new VehiculosDetalle();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(VehiculoId > 0)
+        {
+            var encontrado = await httpClient.GetFromJsonAsync<Vehiculos>("api/Vehiculos/" + VehiculoId);
+            if(encontrado != null)
+            {
+                vehiculo = encontrado;
+                ListaAccesorios = (await httpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios/"))!;
+            }
+        }
+    }
+
+    public async Task Guardar()
+    {
+        var guardadoVehiculo = await httpClient.PutAsJsonAsync("api/Vehiculos/" + vehiculo.VehiculoId, vehiculo);
+
+
+        if (guardadoVehiculo.IsSuccessStatusCode)
+        {
+            Nuevo();
+        }
+        
+    }
+
+    public void add()
+    {
+        if (Detalle.valor > 0)
+        {
+            ListaDetalles.Add(Detalle);
+            Detalle = new VehiculosDetalle();
+
+        }
+    }
+
+    public void Remove(VehiculosDetalle details)
+    {
+        Detalle = details;
+        ListaDetalles.Remove(details);
+    }
+
+    public void Nuevo()
+    {
+        vehiculo = new Vehiculos();
+        ListaDetalles = new List<VehiculosDetalle>();
+        vehiculo.Fecha = DateTime.Today;
+    }
+}
+
+
+
