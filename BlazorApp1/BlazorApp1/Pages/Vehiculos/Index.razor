@@ -1,0 +1,105 @@
+﻿<h3>Index</h3>
+@page "/VehiculoIndex"
+@inject HttpClient httpClient
+
+<div class="card shadow">
+    <div class="card-header">
+        <h3>Vehiculos</h3>
+    </div>
+
+    <div class="card-body">
+        <form>
+            <div class="input-group aling-items-end">
+                <InputSelect class="form-select col-2" @bind-Value="op">
+                    <option value="1">Id</option>
+                    <option value="2">Descripcion</option>
+                </InputSelect>
+
+                <div class="flex-fill mx-2">
+                    <div class="input-group">
+                        <label class="input-group-text">B&uacute;squeda</label>
+
+                        <div class="col-auto">
+                            @switch (op)
+                            {
+                                case 1:
+                                    <div class="input-group">
+                                        <InputNumber @bind-Value="vehiculo.VehiculoId" class="form-control" min="0"></InputNumber>
+                                        <button type="button" class="btn btn-primary bi bi-search" @onclick="Buscar"></button>
+                                    </div>
+                                    break;
+                                case 2:
+                                    <div class="input-group">
+                                        <InputText @bind-Value="vehiculo.Descripcion" class="form-control"></InputText>
+                                        <button type="button" class="btn btn-primary bi bi-search" @onclick="Buscar"></button>
+                                    </div>
+                                    break;
+                                case 3:
+                                    <div class="input-group">
+                                        <InputNumber @bind-Value="vehiculo.Costo" class="form-control"></InputNumber>
+                                        <button type="button" class="btn btn-primary bi bi-search" @onclick="Buscar"></button>
+                                    </div>
+                                    break;
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <a href="/VehiculoCreate" class="btn btn-outline-success mx-2 bi bi-plus-square"> Crear</a>
+
+            </div>
+        </form>
+    </div>
+
+    <div>
+        <table class="table table-light table-hover table-striped table-bordered ">
+            <thead>
+                <tr>
+                    <th scope="col" class="text-center">Id</th>
+                    <th scope="col" class="text-center">Descripci&oacute;n</th>
+                    <th scope="col" class="text-center">Costo</th>
+                    <th scope="col" class="text-center">Editar</th>
+                    <th scope="col" class="text-center">Detalles</th>
+                    <th scope="col" class="text-center">Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ListaVehiculos)
+                {
+                    <tr>
+                        <td class="text-center">@item.VehiculoId</td>
+                        <td class="text-center">@item.Descripcion</td>
+                        <td class="text-center">@item.Costo</td>
+                        <td class="text-center"><a href="VehiculoEdit/@item.VehiculoId" class="btn btn-outline-danger bi bi-pencil-square"></a></td>
+                        <td class="text-center"><a href="VehiculoView/@item.VehiculoId" class="btn btn-outline-info bi bi-card-text"></a></td>
+                        <td class="text-center"><a href="VehiculoDelete/@item.VehiculoId" class="btn btn-outline-danger bi bi-person-x"></a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="card-footer fw-bold">
+            <p>Vehiculos: @ListaVehiculos.Count</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    public Vehiculos vehiculo = new Vehiculos();
+    public List<Vehiculos> ListaVehiculos = new List<Vehiculos>();
+    public int op { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaVehiculos = (await httpClient.GetFromJsonAsync<List<Vehiculos>>("api/Vehiculos"))!;
+    }
+    public async Task Buscar()
+    {
+        if (op == 1 && vehiculo.VehiculoId > 0)
+            ListaVehiculos = (await httpClient.GetFromJsonAsync<List<Vehiculos>>("api/Vehiculos"))!.Where(v => v.VehiculoId == vehiculo.VehiculoId).ToList();
+        else if (op == 2 && !string.IsNullOrEmpty(vehiculo.Descripcion))
+            ListaVehiculos = (await httpClient.GetFromJsonAsync<List<Vehiculos>>("api/Vehiculos"))!.Where(v => v.Descripcion!.ToLower().Contains(vehiculo.Descripcion!.ToLower())).ToList();       
+        else
+             ListaVehiculos = (await httpClient.GetFromJsonAsync<List<Vehiculos>>("api/Vehiculos"))!;
+    }
+}

@@ -15,8 +15,6 @@ namespace Libreria.Models
         [Required(ErrorMessage = "Este campo no puede estar vacio")]
         [Range(1,float.MaxValue, ErrorMessage ="El precio no puede ser menor que 0")]
         public float Costo { get; set; }
-        [Required(ErrorMessage = "Este campo no puede estar vacio")]
-        [Range(1, float.MaxValue, ErrorMessage = "El precio no puede ser menor que 0")]
         public float Gastos { get; set; }
     }
 }
