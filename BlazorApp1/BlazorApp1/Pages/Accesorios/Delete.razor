@@ -15,12 +15,12 @@
     <div class="card-body">
         <div>
             <label>Accesorio Id:</label>
-            <InputNumber @bind-Value="accesorios.AccesorioId" class="form-control"></InputNumber>
+            <InputNumber @bind-Value="accesorios.AccesorioId" class="form-control" disabled></InputNumber>
             <ValidationMessage For="(() => accesorios.AccesorioId)"></ValidationMessage>
         </div>
         <div>
             <label>Descripcion:</label>
-            <InputText @bind-Value="accesorios.Descripcion" class="form-control"></InputText>
+            <InputText @bind-Value="accesorios.Descripcion" class="form-control" disabled></InputText>
             <ValidationMessage For="(() => accesorios.Descripcion)"></ValidationMessage>
         </div>
     </div>
