@@ -1,8 +1,42 @@
-﻿<h3>View</h3>
-@page "/View"
+﻿@page "/AccesorioView"
+@page "/AccesorioView/{AccesorioID:int}"
+@inject HttpClient httpClient
 
-<a href="Index">Index</a>
+<EditForm Model="accesorio">
+	<DataAnnotationsValidator />
+	<div class="card shadow-lg">
+		<div class="card-header">			
+			<h3>Registrar Cliente</h3>			
+		</div>
+		<div class="card-body">
+			<div class="row">
+				<p><strong> Accesorio ID:</strong> @accesorio.AccesorioId</p>
+				<p><strong> Descripci&oacute;n:</strong> @accesorio.Descripcion</p>
+			</div>
+		</div>
+		<div class="card-footer d-flex justify-content-end input-group">
+			<a href="/AccesoriosIndex" class="btn btn-outline-danger bi bi-house-door-fill ms-auto">Volver</a>
+		</div>
+	</div>
+
+</EditForm>
 
 @code {
 
+	[Parameter]
+	public int AccesorioID { get; set; }
+
+	public Accesorios accesorio = new Accesorios();
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (AccesorioID != 0)
+		{
+			var buscado = await httpClient.GetFromJsonAsync<Accesorios>("api/Accesorios/" + AccesorioID);
+			if (buscado != null)
+			{
+				accesorio = buscado;
+			}
+		}
+	}
 }

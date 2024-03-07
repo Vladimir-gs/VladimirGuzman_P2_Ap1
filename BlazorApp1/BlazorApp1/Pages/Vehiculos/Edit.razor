@@ -1,6 +1,7 @@
 ﻿<h3>Create</h3>
 @inject HttpClient httpClient
-@page "/VehiculoCreate"
+@page "/VehiculoEdit"
+@page "/VehiculoEdit/{VehiculoId:int}"
 
 <EditForm Model="vehiculo" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
@@ -36,7 +37,7 @@
                         <ValidationMessage For="@(() => vehiculo.Gastos)" />
                     </div>
                 </div>
-            </div> 
+            </div>
         </div>
         <div class="container">
             <div class="card-header">
@@ -68,7 +69,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach(var detalle in ListaDetalles)
+                        @foreach (var detalle in ListaDetalles)
                         {
                             var accesorio = ListaAccesorios.FirstOrDefault(a => a.AccesorioId == detalle.AccesoriosId);
                             <tr>
@@ -88,7 +89,6 @@
             <div class="row">
                 <div class="input-group">
                     <a href="/VehiculoIndex" class="btn btn-outline-danger bi bi-house-door-fill">Volver</a>
-                    <button type="button" class="btn btn-outline-primary bi bi-file-earmark-diff-fill" @onclick="Nuevo">Nuevo</button>
                     <button type="submit" class="btn btn-outline-success bi bi-floppy-fill">Guardar</button>
                 </div>
             </div>
@@ -97,41 +97,39 @@
 </EditForm>
 
 @code {
+    [Parameter]
+    public int VehiculoId { get; set; }
 
     public Vehiculos vehiculo = new Vehiculos();
     public List<Accesorios> ListaAccesorios { get; set; } = new List<Accesorios>();
+
     public List<VehiculosDetalle> ListaDetalles = new List<VehiculosDetalle>();
     public VehiculosDetalle Detalle { get; set; } = new VehiculosDetalle();
 
     protected override async Task OnInitializedAsync()
     {
-        ListaAccesorios = (await httpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios"))!;
-        vehiculo.Fecha = DateTime.Today;
-        Nuevo();
+        if(VehiculoId > 0)
+        {
+            var encontrado = await httpClient.GetFromJsonAsync<Vehiculos>("api/Vehiculos/" + VehiculoId);
+            if(encontrado != null)
+            {
+                vehiculo = encontrado;
+                ListaAccesorios = (await httpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios/"))!;
+            }
+        }
     }
 
     public async Task Guardar()
     {
-        var guardadoVehiculo = await httpClient.PostAsJsonAsync("api/Vehiculos", vehiculo);
+        var guardadoVehiculo = await httpClient.PutAsJsonAsync("api/Vehiculos/" + vehiculo.VehiculoId, vehiculo);
+
 
         if (guardadoVehiculo.IsSuccessStatusCode)
         {
-            var vehiculoCreado = await guardadoVehiculo.Content.ReadFromJsonAsync<Vehiculos>();
-
-            foreach (var detalle in ListaDetalles)
-            {
-                VehiculosDetalle detalleNuevo = new VehiculosDetalle();
-                detalleNuevo.VehiculosId = vehiculoCreado!.VehiculoId;
-                detalleNuevo.AccesoriosId = detalle.AccesoriosId;
-                detalleNuevo.valor = detalle.valor;
-
-                await httpClient.PostAsJsonAsync("api/VehiculosDetalle", detalleNuevo);
-            }
+            Nuevo();
         }
-        Nuevo();
+        
     }
-
-
 
     public void add()
     {

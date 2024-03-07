@@ -1,0 +1,82 @@
+﻿<h3>View</h3>
+@inject HttpClient httpClient
+@page "/VehiculoDelete"
+@page "/VehiculoDelete/{vehiculoId:int}"
+
+
+<div class="card shadow-lg">
+    <div class="card-header">
+        <h3>Eliminar Vehiculo</h3>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <p><strong> VehiculoID:</strong> @Vehiculo.VehiculoId</p>
+                <p><strong> Descripci&oacute;n:</strong> @Vehiculo.Descripcion</p>
+                <p><strong> Fecha:</strong> @Vehiculo.Fecha.ToString("dd/MM/yyyy")</p>
+                <p><strong> Costo:</strong> @Vehiculo.Costo.ToString("N")</p>
+                <p><strong> Gastos:</strong> @Vehiculo.Gastos.ToString("N")</p>
+            </div>
+        </div>
+        <div class="container">
+
+            <table class="table table-bordered text-center">
+                <thead>
+                    <tr>
+                        <th>VehiculoId</th>
+                        <th>Descripci&oacute;n</th>
+                        <th>AccesorioId</th>
+                        <th>Valor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var detalle in listaDetalles)
+                    {
+                        var accesorio = Accesorios.FirstOrDefault(a => a.AccesorioId == detalle.AccesoriosId);
+                        <tr>
+                            <td>@detalle.VehiculosId</td>
+                            <td>@accesorio!.Descripcion</td>
+                            <td>@detalle.AccesoriosId</td>
+                            <td>@detalle.valor.ToString("N")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer d-flex justify-content-end input-group">
+        <a href="/VehiculoIndex" class="btn btn-outline-danger bi bi-house-door-fill ms-auto">Volver</a>
+        <button type="button" class="btn btn-outline-danger bi bi-trash-fill" @onclick="Eliminar">Eliminar</button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int vehiculoId { get; set; }
+    public Vehiculos Vehiculo = new Vehiculos();
+    public List<VehiculosDetalle> listaDetalles = new List<VehiculosDetalle>();
+    public List<Accesorios> Accesorios = new List<Accesorios>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (vehiculoId > 0)
+        {
+            var encontrado = await httpClient.GetFromJsonAsync<Vehiculos>($"api/Vehiculos/{vehiculoId}");
+            if (encontrado != null)
+            {
+                Vehiculo = encontrado;
+                Accesorios = (await httpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios"))!;
+            }
+        }
+    }
+
+    public async Task Eliminar()
+    {
+        var eliminado = await httpClient.DeleteAsync($"api/Vehiculos/{vehiculoId}");
+        if (eliminado.IsSuccessStatusCode)
+        {
+            Vehiculo = new Vehiculos();
+            Vehiculo.Fecha = DateTime.MinValue;
+        }
+    }
+}

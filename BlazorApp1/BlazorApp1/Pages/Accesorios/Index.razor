@@ -36,6 +36,7 @@
                         </div>
                     </div>
                 </div>
+                <a class="btn btn-outline-primary bi bi-car-front-fill" href="VehiculoIndex"> Vehiculos</a>
 
                 <a href="/AccesoriosCreate" class="btn btn-success mx-2 bi bi-plus-square"> Crear</a>
 
@@ -60,9 +61,9 @@
                     <tr>
                         <td class="text-center">@item.AccesorioId</td>
                         <td class="text-center">@item.Descripcion</td>
-                        <td class="text-center"><a href="Edit/@item.AccesorioId" class="btn btn-outline-danger bi bi-pencil-square"></a></td>
-                        <td class="text-center"><a href="View/@item.AccesorioId" class="btn btn-outline-info bi bi-card-text"></a></td>
-                        <td class="text-center"><a href="Delete/@item.AccesorioId" class="btn btn-outline-danger bi bi-person-x"></a></td>
+                        <td class="text-center"><a href="AccesorioEdit/@item.AccesorioId" class="btn btn-outline-danger bi bi-pencil-square"></a></td>
+                        <td class="text-center"><a href="AccesorioView/@item.AccesorioId" class="btn btn-outline-info bi bi-card-text"></a></td>
+                        <td class="text-center"><a href="AccesorioDelete/@item.AccesorioId" class="btn btn-outline-danger bi bi-person-x"></a></td>
                     </tr>
                 }
             </tbody>
