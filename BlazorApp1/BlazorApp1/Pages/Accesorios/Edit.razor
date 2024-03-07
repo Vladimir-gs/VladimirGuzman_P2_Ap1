@@ -1,8 +1,62 @@
 ﻿<h3>Edit</h3>
 @page "/Edit"
+@page "/AccesorioEdit/{AccesorioId:int}"
+@inject HttpClient httpClient
 
 <a href="Index">Index</a>
 
+
+<EditForm Model="accesorios" on OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="card-header">
+        <h3>Accesorios</h3>
+    </div>
+    <div class="card-body">
+        <div>
+            <label>Accesorio Id:</label>
+            <InputNumber @bind-Value="accesorios.AccesorioId" class="form-control"></InputNumber>
+            <ValidationMessage For="(() => accesorios.AccesorioId)"></ValidationMessage>
+        </div>
+        <div>
+            <label>Descripcion:</label>
+            <InputText @bind-Value="accesorios.Descripcion" class="form-control"></InputText>
+            <ValidationMessage For="(() => accesorios.Descripcion)"></ValidationMessage>
+        </div>
+    </div>
+    <div class="card-footer">
+        <div class="input-group">
+            <a href="/AccesoriosIndex" class="btn btn-outline-danger bi bi-house-door-fill">Volver</a>
+            <button type="submit" class="btn btn-outline-success bi bi-floppy-fill">Guardar</button>
+        </div>
+    </div>
+
+</EditForm>
+
 @code {
 
+    [Parameter]
+    public int AccesorioId { get; set; }
+
+    public Accesorios accesorios = new Accesorios();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AccesorioId != 0)
+        {
+            var encontrado = await httpClient.GetFromJsonAsync<Accesorios>("api/Accesorios/" + AccesorioId);
+            if(encontrado != null)
+            {
+                accesorios = encontrado;
+            }
+        }
+    }
+
+    public async Task Guardar()
+    {
+        //bool accesorioExiste = await Existe();
+       
+        var guardadoAccesorio = await httpClient.PutAsJsonAsync("api/Accesorios/" + AccesorioId, this.accesorios);
+
+    }
 }
