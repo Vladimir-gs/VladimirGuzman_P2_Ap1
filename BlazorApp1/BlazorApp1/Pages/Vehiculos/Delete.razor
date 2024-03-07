@@ -1,12 +1,12 @@
 ﻿<h3>View</h3>
 @inject HttpClient httpClient
-@page "/VehiculoView"
-@page "/VehiculoView/{vehiculoId:int}"
+@page "/VehiculoDelete"
+@page "/VehiculoDelete/{vehiculoId:int}"
 
 
 <div class="card shadow-lg">
     <div class="card-header">
-        <h3>Detalles del Vehiculo</h3>
+        <h3>Eliminar Vehiculo</h3>
     </div>
     <div class="card">
         <div class="card-body">
@@ -46,6 +46,7 @@
     </div>
     <div class="card-footer d-flex justify-content-end input-group">
         <a href="/VehiculoIndex" class="btn btn-outline-danger bi bi-house-door-fill ms-auto">Volver</a>
+        <button type="button" class="btn btn-outline-danger bi bi-trash-fill" @onclick="Eliminar">Eliminar</button>
     </div>
 </div>
 
@@ -58,7 +59,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if(vehiculoId > 0)
+        if (vehiculoId > 0)
         {
             var encontrado = await httpClient.GetFromJsonAsync<Vehiculos>($"api/Vehiculos/{vehiculoId}");
             if (encontrado != null)
@@ -66,6 +67,16 @@
                 Vehiculo = encontrado;
                 Accesorios = (await httpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios"))!;
             }
+        }
+    }
+
+    public async Task Eliminar()
+    {
+        var eliminado = await httpClient.DeleteAsync($"api/Vehiculos/{vehiculoId}");
+        if (eliminado.IsSuccessStatusCode)
+        {
+            Vehiculo = new Vehiculos();
+            Vehiculo.Fecha = DateTime.MinValue;
         }
     }
 }
